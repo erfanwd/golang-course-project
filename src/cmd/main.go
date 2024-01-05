@@ -1,5 +1,9 @@
-package cmd
+package main
 
-func main() {
-	
+import "github.com/erfanwd/golang-course-project/api"
+
+
+
+func main(){
+	api.InitialServer()
 }
