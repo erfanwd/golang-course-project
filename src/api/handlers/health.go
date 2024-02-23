@@ -10,5 +10,4 @@ func NewHealthHandler() *HealthHandler {
 
 func (h *HealthHandler) HealthCheck (context *gin.Context){
 	context.JSON(200,"healthy")
-	
 }
