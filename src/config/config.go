@@ -4,24 +4,71 @@ import (
 	"errors"
 	"log"
 	"os"
-
+	"time"
 	"github.com/spf13/viper"
 )
 
-
 type Config struct {
-	Server ServerConfig
+	Server   ServerConfig
+	Cors     CorsConfig
+	Password PasswordConfig
+	Redis    RedisConfig
+	Postgres PostgresConfig
+	Logger   LoggerConfig
 }
 
 type ServerConfig struct {
-	Port int
+	Port    int
 	RunMode string
+}
+
+type LoggerConfig struct {
+	FilePath string
+	Encoding string
+	Level    string
+	Logger    string
+}
+
+type CorsConfig struct {
+	AllowOrigins string
+}
+
+type RedisConfig struct {
+	Host               string
+	Port               int
+	Password           string
+	DialTimeout        time.Duration
+	ReadTimeout        time.Duration
+	WriteTimeout       time.Duration
+	PoolSize           int
+	PoolTimeout        time.Duration
+	IdleCheckFrequency time.Duration
+}
+
+type PostgresConfig struct {
+	Host            string
+	Port            int
+	User            string
+	Password        string
+	DbName          string
+	SSLMode         string
+	MaxIdleConns    int
+	MaxOpenConns    int
+	ConnMaxLifetime time.Duration
+}
+
+type PasswordConfig struct {
+	MinLength        int
+	IncludeChars     bool
+	IncludeDigits    bool
+	IncludeLowercase bool
+	IncludeUppercase bool
 }
 
 func GetConfig() *Config {
 	configPath := GetConfigPath(os.Getenv("APP_ENV"))
 
-	configViper, err := LoadConfig(configPath,"yml")
+	configViper, err := LoadConfig(configPath, "yml")
 	if err != nil {
 		log.Fatalf("error loading config: %v", err)
 	}
@@ -48,7 +95,7 @@ func ParseConfigFile(viper *viper.Viper) (*Config, error) {
 
 }
 
-func LoadConfig(filename string,filetype string) (*viper.Viper, error) {
+func LoadConfig(filename string, filetype string) (*viper.Viper, error) {
 	v := viper.New()
 	v.SetConfigName(filename)
 	v.SetConfigType(filetype)
@@ -69,8 +116,8 @@ func LoadConfig(filename string,filetype string) (*viper.Viper, error) {
 func GetConfigPath(env string) string {
 	if env == "development" {
 		return "../config/config-dev.yml"
-	}else {
+	} else {
 		return "../config/config-dev.yml"
 	}
-	
+
 }

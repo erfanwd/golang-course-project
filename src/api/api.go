@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 
+	"github.com/erfanwd/golang-course-project/api/middlewares"
 	"github.com/erfanwd/golang-course-project/api/routers"
 	"github.com/erfanwd/golang-course-project/api/validations"
 	"github.com/erfanwd/golang-course-project/config"
@@ -11,15 +12,19 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func InitialServer(){
-	config := config.GetConfig()
+func InitialServer(cfg *config.Config){
 	r := gin.New()
-	val, ok := binding.Validator.Engine().(*validator.Validate)
-	if ok {
-		val.RegisterValidation("mobile",validations.MobileNumberValidator,true)
-	}
+	
+	r.Use(middlewares.DefaultStructuredLogger(cfg))
+	r.Use(middlewares.Cors(cfg))
 	r.Use(gin.Logger(),gin.Recovery())
 
+	RegisterRoutes(r)
+
+	r.Run(fmt.Sprintf(":%d",cfg.Server.Port))
+}
+
+func RegisterRoutes(r *gin.Engine){
 	v1 := r.Group("/api/v1/")
 	
 	{
@@ -29,6 +34,12 @@ func InitialServer(){
 		test := v1.Group("test")
 		routers.Test(test)
 	}
+}
 
-	r.Run(fmt.Sprintf(":%d",config.Server.Port))
+func RegisterValidators(){
+	val, ok := binding.Validator.Engine().(*validator.Validate)
+	if ok {
+		val.RegisterValidation("mobile",validations.MobileNumberValidator,true)
+		val.RegisterValidation("password",validations.PasswordValidator,true)
+	}
 }

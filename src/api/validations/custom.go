@@ -1,22 +1,32 @@
 package validations
 
 import (
-	"regexp"
+	"errors"
 
 	"github.com/go-playground/validator/v10"
 )
 
-func MobileNumberValidator(fld validator.FieldLevel) bool {
+type ValidationError struct {
+	Property string `json:"property"`
+	Tag      string `json:"tag"`
+	Value    string `json:"value"`
+	Message  string `json:"message"`
+}
 
-	value, ok := fld.Field().Interface().(string)
-	if !ok {
-		return false
+func GetValidationErrors(err error) *[]ValidationError {
+	var validationErrors []ValidationError
+	var ve validator.ValidationErrors
+	if errors.As(err, &ve) {
+		for _, err := range err.(validator.ValidationErrors) {
+			var item ValidationError
+			item.Property = err.Field()
+			item.Tag = err.Tag()
+			item.Value = err.Param()
+			validationErrors = append(validationErrors, item)
+		}
+		return &validationErrors
 	}
 
-	res, err := regexp.MatchString(`(0|\+98)?([ ]|-|[()]){0,2}9[1|2|3|4]([ ]|-|[()]){0,2}(?:[0-9]([ ]|-|[()]){0,2}){8}`, value)
-	if err != nil {
-		return false		
-	}
-	
-	return res
+	return nil
+
 }
