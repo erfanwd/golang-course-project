@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
+
 	"github.com/spf13/viper"
 )
 
@@ -15,6 +16,7 @@ type Config struct {
 	Redis    RedisConfig
 	Postgres PostgresConfig
 	Logger   LoggerConfig
+	Otp      OtpConfig
 }
 
 type ServerConfig struct {
@@ -26,7 +28,7 @@ type LoggerConfig struct {
 	FilePath string
 	Encoding string
 	Level    string
-	Logger    string
+	Logger   string
 }
 
 type CorsConfig struct {
@@ -63,6 +65,12 @@ type PasswordConfig struct {
 	IncludeDigits    bool
 	IncludeLowercase bool
 	IncludeUppercase bool
+}
+
+type OtpConfig struct {
+	Duration time.Duration
+	Digits   int
+	Limiter  time.Duration
 }
 
 func GetConfig() *Config {

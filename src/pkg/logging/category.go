@@ -17,11 +17,12 @@ const (
 	StartUp         SubCategory = "StartUp"
 	ExternalService SubCategory = "ExternalService"
 	//postgres
-	Select   SubCategory = "Select"
-	Rollback SubCategory = "Rollback"
-	Update   SubCategory = "Update"
-	Delete   SubCategory = "Delete"
-	Insert   SubCategory = "Insert"
+	Select    SubCategory = "Select"
+	Migration SubCategory = "Migration"
+	Rollback  SubCategory = "Rollback"
+	Update    SubCategory = "Update"
+	Delete    SubCategory = "Delete"
+	Insert    SubCategory = "Insert"
 	//internal
 	Api                 SubCategory = "Api"
 	HashPassword        SubCategory = "HashPassword"
@@ -45,4 +46,5 @@ const (
 	Path         Extra = "Path"
 	RequestBody  Extra = "RequestBody"
 	ResponseBody Extra = "ResponseBody"
+	TablesData   Extra = "TablesData"
 )

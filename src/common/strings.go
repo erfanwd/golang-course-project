@@ -1,6 +1,10 @@
 package common
 
 import (
+	"crypto/rand"
+	"fmt"
+	"math/big"
+
 	"unicode"
 
 	"github.com/erfanwd/golang-course-project/config"
@@ -72,4 +76,19 @@ func HasUpper(value string) bool {
 		}
 	}
 	return false
+}
+
+func GenerateOtp() string {
+	cfg := config.GetConfig()
+	digits := cfg.Otp.Digits
+
+	otp := ""
+	for i := 0; i < digits; i++ {
+		num, _ := rand.Int(rand.Reader, big.NewInt(10)) 
+		
+		otp = fmt.Sprintf("%d", num)	
+	}
+	return otp
+	
+	
 }
