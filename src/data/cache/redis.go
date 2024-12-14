@@ -14,7 +14,7 @@ var redisClient *redis.Client
 func InitRedis(cfg *config.Config) {
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:               fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port),
-		Password:           cfg.Redis.Password,
+		// Password:           cfg.Redis.Password,
 		DB:                 0,
 		DialTimeout:        cfg.Redis.DialTimeout * time.Second,
 		ReadTimeout:        cfg.Redis.ReadTimeout * time.Second,

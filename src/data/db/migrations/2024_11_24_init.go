@@ -3,16 +3,13 @@ package migrations
 import (
 	"errors"
 
-	"github.com/erfanwd/golang-course-project/config"
 	"github.com/erfanwd/golang-course-project/constants"
 	"github.com/erfanwd/golang-course-project/data/db"
 	"github.com/erfanwd/golang-course-project/data/models"
-	"github.com/erfanwd/golang-course-project/pkg/logging"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-var logger = logging.NewLogger(config.GetConfig())
 
 func Up1() {
 	database := db.GetDb()
@@ -32,13 +29,7 @@ func Up1() {
 	tables = addNewTable(database, tables, userRole)
 
 	database.Migrator().CreateTable(tables...)
-	logger.Info(
-		logging.Postgres,
-		logging.Migration,
-		"tables created",
-		map[logging.Extra]interface{}{
-			logging.TablesData: tables,
-		})
+	
 }
 
 func addNewTable(database *gorm.DB, tables []interface{}, table interface{}) []interface{} {

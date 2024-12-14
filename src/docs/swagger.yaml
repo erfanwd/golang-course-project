@@ -1,0 +1,65 @@
+definitions:
+  dto.GetOtpRequest:
+    properties:
+      mobileNumber:
+        type: string
+    required:
+    - mobileNumber
+    type: object
+  helpers.BaseHttpResponse:
+    properties:
+      error: {}
+      result: {}
+      result_code:
+        type: integer
+      success:
+        type: boolean
+      validation_errors:
+        items:
+          $ref: '#/definitions/validations.ValidationError'
+        type: array
+    type: object
+  validations.ValidationError:
+    properties:
+      message:
+        type: string
+      property:
+        type: string
+      tag:
+        type: string
+      value:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/users/send-otp:
+    post:
+      consumes:
+      - application/json
+      description: send otp to user
+      parameters:
+      - description: GetOtpRequest
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GetOtpRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+        "400":
+          description: Failed
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+        "409":
+          description: Failed
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+      tags:
+      - Users
+swagger: "2.0"

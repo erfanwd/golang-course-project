@@ -1,4 +1,5 @@
 {
-    "materialTheme.accent": "Cyan"
+    "materialTheme.accent": "Cyan",
+    "editor.fontSize": 12
     
 }

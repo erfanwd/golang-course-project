@@ -86,9 +86,7 @@ func GenerateOtp() string {
 	for i := 0; i < digits; i++ {
 		num, _ := rand.Int(rand.Reader, big.NewInt(10)) 
 		
-		otp = fmt.Sprintf("%d", num)	
+		otp += fmt.Sprintf("%d", num)  
 	}
 	return otp
-	
-	
 }
