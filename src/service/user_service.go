@@ -4,29 +4,26 @@ import (
 	"github.com/erfanwd/golang-course-project/api/dto"
 	"github.com/erfanwd/golang-course-project/common"
 	"github.com/erfanwd/golang-course-project/config"
-	"github.com/erfanwd/golang-course-project/data/db"
 	"github.com/erfanwd/golang-course-project/pkg/logging"
-	"gorm.io/gorm"
+	"github.com/erfanwd/golang-course-project/repository"
 )
 
 type UserService struct {
 	Logger     logging.Logger
 	Cfg        *config.Config
-	Database   *gorm.DB
 	OtpService *OtpService
+	UserRepo   *repository.UserRepo
 }
 
 func NewUserService(cfg *config.Config) *UserService {
-	database := db.GetDb()
 	logger := logging.NewLogger(cfg)
 	return &UserService{
-		Database:   database,
 		Logger:     logger,
 		Cfg:        cfg,
 		OtpService: NewOtpService(cfg),
+		UserRepo: repository.NewUserRepo(cfg, logger),
 	}
 }
-
 
 func (service *UserService) SendOtp(request *dto.GetOtpRequest) error {
 	otp := common.GenerateOtp()
