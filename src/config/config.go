@@ -17,7 +17,8 @@ type Config struct {
 	Postgres PostgresConfig
 	Logger   LoggerConfig
 	Otp      OtpConfig
-}
+	Jwt      JwtConfig
+} 
 
 type ServerConfig struct {
 	Port    int
@@ -71,6 +72,13 @@ type OtpConfig struct {
 	Duration time.Duration
 	Digits   int
 	Limiter  time.Duration
+}
+
+type JwtConfig struct {
+	Secret                     string
+	RefreshSecret              string
+	AccessTokenExpireDuration  time.Duration
+	RefreshTokenExpireDuration time.Duration
 }
 
 func GetConfig() *Config {

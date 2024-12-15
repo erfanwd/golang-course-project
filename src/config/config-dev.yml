@@ -39,4 +39,8 @@ otp:
   duration: 120
   digits: 6
   limiter: 100   
-  
+jwt:
+  secret: "mySecretKey"
+  refreshSecret: "myRefreshSecret"
+  accessTokenExpireDuration: 60
+  refreshTokenExpireDuration: 360
