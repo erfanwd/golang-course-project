@@ -88,3 +88,20 @@ func (service *TokenService) VerifyToken(token string) (*jwt.Token, error) {
 	}
 	return at, nil
 }
+
+func (service *TokenService) GetClaims(token string) (claimMap map[string]interface{}, err error) {
+	claimMap = map[string]interface{}{}
+
+	verifyToken, err := service.VerifyToken(token)
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := verifyToken.Claims.(jwt.MapClaims)
+	if ok && verifyToken.Valid {
+		for k, v := range claims {
+			claimMap[k] = v
+		}
+		return claimMap, nil
+	}
+	return nil, &service_errors.ServiceError{EndUserMessage: service_errors.ClaimsNotFound}
+}
