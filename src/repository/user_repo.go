@@ -6,19 +6,23 @@ import (
 	"github.com/erfanwd/golang-course-project/data/db"
 	"github.com/erfanwd/golang-course-project/data/models"
 	"github.com/erfanwd/golang-course-project/pkg/logging"
+	repo_interface "github.com/erfanwd/golang-course-project/repository/interfaces"
 	"gorm.io/gorm"
+	"context"
+
 )
+var _ repo_interface.UserRepositoryInterface = &UserRepo{}
 
 type UserRepo struct {
+	*BaseRepo[models.User]
 	Logger    logging.Logger
-	Database  *gorm.DB
 }
 
-func NewUserRepo(cfg *config.Config, logger logging.Logger) *UserRepo {
+func NewUserRepo(cfg *config.Config, logger logging.Logger) repo_interface.UserRepositoryInterface {
 	database := db.GetDb()
 	return &UserRepo{
-		Database:  database,
-		Logger:    logger,
+		BaseRepo: NewBaseRepository[models.User](database),
+		Logger:         logger,
 	}
 }
 
@@ -45,26 +49,22 @@ func (r *UserRepo) GetDefaultRole() (roleId int, err error) {
 	return roleId, nil 
 }
 
-func (r *UserRepo) Create(user *models.User) error {
-	roleId, err := r.GetDefaultRole()
-	if err != nil {
-		r.Logger.Error(logging.Postgres, logging.DefaultRoleNotFound, err.Error(), nil)
-		return err
-	}
-	tx := r.Database.Begin()
-	if err := tx.Create(user).Error; err != nil {
-		tx.Rollback()
-		r.Logger.Error(logging.Postgres, logging.Rollback, err.Error(), nil)
-		return err
-	}
+func (r *UserRepo) Create(ctx context.Context, user *models.User) error {
+    return r.BaseRepo.WithTransaction(ctx ,func(tx *gorm.DB) error {
+        roleId, err := r.GetDefaultRole()
+        if err != nil {
+            return err
+        }
 
-	if err := tx.Create(&models.UserRole{RoleId: roleId, UserId: user.Id}).Error; err != nil {
-		tx.Rollback()
-		r.Logger.Error(logging.Postgres, logging.Rollback, err.Error(), nil)
-		return err
-	}
+        if err := tx.Create(user).Error; err != nil {
+            return err
+        }
 
-	tx.Commit()
-	return nil
+        if err := tx.Create(&models.UserRole{RoleId: roleId, UserId: user.Id}).Error; err != nil {
+            return err
+        }
 
+        return nil
+    })
 }
+

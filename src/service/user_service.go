@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/erfanwd/golang-course-project/api/dto"
 	"github.com/erfanwd/golang-course-project/common"
 	"github.com/erfanwd/golang-course-project/config"
@@ -8,6 +10,7 @@ import (
 	"github.com/erfanwd/golang-course-project/pkg/logging"
 	"github.com/erfanwd/golang-course-project/pkg/service_errors"
 	"github.com/erfanwd/golang-course-project/repository"
+	repo_interfaces "github.com/erfanwd/golang-course-project/repository/interfaces"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -15,7 +18,7 @@ type UserService struct {
 	Logger     logging.Logger
 	Cfg        *config.Config
 	OtpService *OtpService
-	UserRepo   *repository.UserRepo
+	UserRepo   repo_interfaces.UserRepositoryInterface
 }
 
 func NewUserService(cfg *config.Config) *UserService {
@@ -37,7 +40,7 @@ func (service *UserService) SendOtp(request *dto.GetOtpRequest) error {
 	return nil
 }
 
-func (service *UserService) RegisterByUsername(req *dto.RegisterUserByUsernameRequest) error {
+func (service *UserService) RegisterByUsername(ctx context.Context, req *dto.RegisterUserByUsernameRequest) error {
 	u := &models.User{
 		Username:  req.Username,
 		FirstName: req.FirstName,
@@ -68,8 +71,8 @@ func (service *UserService) RegisterByUsername(req *dto.RegisterUserByUsernameRe
 		return err
 	}
 	u.Password = string(hp)
-	
-	service.UserRepo.Create(u)
+
+	service.UserRepo.Create(ctx, u)
 
 	return nil
 }
