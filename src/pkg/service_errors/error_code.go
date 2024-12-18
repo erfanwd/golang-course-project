@@ -8,6 +8,9 @@ const (
 	UnexpectedError string = "unexpected error"
 	ClaimsNotFound  string = "claims not found"
 
-	UsernameExists string = "username exists"
-	EmailExists    string = "email exists"
+	UsernameExists     string = "username exists"
+	UsernameNotExists  string = "username exists"
+	EmailExists        string = "email exists"
+	MobileNumberExists string = "mobile number exists"
+	IncorrectPassword  string = "password is incorrect"
 )

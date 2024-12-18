@@ -20,7 +20,7 @@ type tokenDto struct {
 	FirstName string
 	LastName  string
 	Username  string
-	email     string
+	Email     string
 	Roles     []string
 }
 
@@ -43,7 +43,7 @@ func (service *TokenService) GenerateToken(token *tokenDto) (*dto.TokenDetail, e
 	atc["first_name"] = token.FirstName
 	atc["last_name"] = token.LastName
 	atc["username"] = token.Username
-	atc["email"] = token.email
+	atc["email"] = token.Email
 	atc["roles"] = token.Roles
 	atc["exp"] = td.AccessTokenExpireDuration
 

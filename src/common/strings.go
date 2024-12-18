@@ -4,19 +4,25 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
+	math "math/rand"
+	"regexp"
+	"strings"
 
 	"unicode"
 
 	"github.com/erfanwd/golang-course-project/config"
 )
 
-// var (
-// 	lowerCharSet = "abcdefghijklmnopqrstuvwxyz"
-// 	upperCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-// 	specialCharSet = "!@#$%&*"
-// 	numberSet = "0123456789"
-// 	allCharSet = lowerCharSet + upperCharSet + specialCharSet + numberSet
-// )
+var (
+	lowerCharSet   = "abcdedfghijklmnopqrst"
+	upperCharSet   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	specialCharSet = "!@#$%&*"
+	numberSet      = "0123456789"
+	allCharSet     = lowerCharSet + upperCharSet + specialCharSet + numberSet
+)
+
+var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
+var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
 
 // func generatePassword () string {
 
@@ -89,4 +95,61 @@ func GenerateOtp() string {
 		otp += fmt.Sprintf("%d", num)  
 	}
 	return otp
+}
+
+func GeneratePassword() string {
+	var password strings.Builder
+
+	cfg := config.GetConfig()
+	passwordLength := cfg.Password.MinLength + 2
+	minSpecialChar := 2
+	minNum := 3
+	if !cfg.Password.IncludeDigits {
+		minNum = 0
+	}
+
+	minUpperCase := 3
+	if !cfg.Password.IncludeUppercase {
+		minUpperCase = 0
+	}
+
+	minLowerCase := 3
+	if !cfg.Password.IncludeLowercase {
+		minLowerCase = 0
+	}
+
+	//Set special character
+	for i := 0; i < minSpecialChar; i++ {
+		random := math.Intn(len(specialCharSet))
+		password.WriteString(string(specialCharSet[random]))
+	}
+
+	//Set numeric
+	for i := 0; i < minNum; i++ {
+		random := math.Intn(len(numberSet))
+		password.WriteString(string(numberSet[random]))
+	}
+
+	//Set uppercase
+	for i := 0; i < minUpperCase; i++ {
+		random := math.Intn(len(upperCharSet))
+		password.WriteString(string(upperCharSet[random]))
+	}
+
+	//Set lowercase
+	for i := 0; i < minLowerCase; i++ {
+		random := math.Intn(len(lowerCharSet))
+		password.WriteString(string(lowerCharSet[random]))
+	}
+
+	remainingLength := passwordLength - minSpecialChar - minNum - minUpperCase
+	for i := 0; i < remainingLength; i++ {
+		random := math.Intn(len(allCharSet))
+		password.WriteString(string(allCharSet[random]))
+	}
+	inRune := []rune(password.String())
+	math.Shuffle(len(inRune), func(i, j int) {
+		inRune[i], inRune[j] = inRune[j], inRune[i]
+	})
+	return string(inRune)
 }

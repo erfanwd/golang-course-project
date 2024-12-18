@@ -11,6 +11,7 @@ const (
 	Redis           Category = "Redis"
 	Validation      Category = "Validation"
 	RequestResponse Category = "RequestResponse"
+	Otp             Category = "Otp"
 )
 
 const (
@@ -30,6 +31,8 @@ const (
 	//validation
 	MobileValidation   SubCategory = "MobileValidation"
 	PasswordValidation SubCategory = "PasswordValidation"
+	//otp
+	OtpValidation SubCategory = "OtpValidation"
 )
 
 const (

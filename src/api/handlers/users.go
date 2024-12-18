@@ -20,6 +20,7 @@ func NewUsersHandler(cfg *config.Config) *UsersHandler {
 		service: service,
 	}
 }
+
 // SendOtp godoc
 // @Summery send otp to user
 // @Description send otp to user

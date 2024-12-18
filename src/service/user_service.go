@@ -15,19 +15,21 @@ import (
 )
 
 type UserService struct {
-	Logger     logging.Logger
-	Cfg        *config.Config
-	OtpService *OtpService
-	UserRepo   repo_interfaces.UserRepositoryInterface
+	Logger       logging.Logger
+	Cfg          *config.Config
+	OtpService   *OtpService
+	TokenService *TokenService
+	UserRepo     repo_interfaces.UserRepositoryInterface
 }
 
 func NewUserService(cfg *config.Config) *UserService {
 	logger := logging.NewLogger(cfg)
 	return &UserService{
-		Logger:     logger,
-		Cfg:        cfg,
-		OtpService: NewOtpService(cfg),
-		UserRepo:   repository.NewUserRepo(cfg, logger),
+		Logger:       logger,
+		Cfg:          cfg,
+		OtpService:   NewOtpService(cfg),
+		TokenService: NewTokenService(cfg),
+		UserRepo:     repository.NewUserRepo(cfg, logger),
 	}
 }
 
@@ -48,31 +50,129 @@ func (service *UserService) RegisterByUsername(ctx context.Context, req *dto.Reg
 		Email:     req.Email,
 	}
 
-	exists, err := service.UserRepo.ExistsBy("username", req.Username)
+	if err := service.checkUserExists("username", req.Username, service_errors.UsernameExists); err != nil {
+		return err
+	}
+
+	if err := service.checkUserExists("email", req.Email, service_errors.EmailExists); err != nil {
+		return err
+	}
+
+	hashedPassword, err := service.hashPassword(req.Password)
+	if err != nil {
+		return err
+	}
+	u.Password = hashedPassword
+
+	return service.UserRepo.CreateUser(ctx, u)
+}
+
+func (service *UserService) LoginByUsername(ctx context.Context, req *dto.LoginByUsernameRequest) (*dto.TokenDetail, error) {
+	u := &models.User{
+		Username: req.Username,
+		Password: req.Password,
+	}
+	user, err := service.UserRepo.GetBy("username", req.Username)
+	if err != nil {
+		return nil, &service_errors.ServiceError{EndUserMessage: service_errors.UsernameNotExists}
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(u.Password),[]byte(user.Password))
+	if err != nil {
+		return nil, &service_errors.ServiceError{EndUserMessage: service_errors.IncorrectPassword}
+	}
+	
+	token, err := service.generateTokenForExistingUser(u.Username)
+	if err != nil {
+		return nil, err
+	}
+	return token, nil
+
+}
+
+func (service *UserService) RegisterLoginByMobileNumber(ctx context.Context, req *dto.RegisterLoginByMobileRequest) (*dto.TokenDetail, error) {
+	u := &models.User{
+		MobileNumber: req.MobileNumber,
+		Username:     req.MobileNumber,
+	}
+
+	if err := service.OtpService.ValidateOtp(req.MobileNumber, req.Otp); err != nil {
+		service.Logger.Error(logging.Otp, logging.OtpValidation, err.Error(), nil)
+		return nil, err
+	}
+
+	exists, err := service.UserRepo.ExistsBy("mobile_number", req.MobileNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	if exists {
+		return service.generateTokenForExistingUser(u.Username)
+	}
+
+	hashedPassword, err := service.hashPassword(common.GeneratePassword())
+	if err != nil {
+		return nil, err
+	}
+	u.Password = hashedPassword
+
+	if err := service.UserRepo.CreateUser(ctx, u); err != nil {
+		return nil, err
+	}
+
+	return service.generateTokenForExistingUser(u.Username)
+}
+
+func (service *UserService) checkUserExists(field, value, errorMessage string) error {
+	exists, err := service.UserRepo.ExistsBy(field, value)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return &service_errors.ServiceError{EndUserMessage: service_errors.UsernameExists}
+		return &service_errors.ServiceError{EndUserMessage: errorMessage}
 	}
+	return nil
+}
 
-	exists, err = service.UserRepo.ExistsBy("email", req.Email)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return &service_errors.ServiceError{EndUserMessage: service_errors.EmailExists}
-	}
-
-	bp := []byte(req.Password)
-	hp, err := bcrypt.GenerateFromPassword(bp, bcrypt.DefaultCost)
+func (service *UserService) hashPassword(password string) (string, error) {
+	hp, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		service.Logger.Error(logging.General, logging.HashPassword, err.Error(), nil)
-		return err
+		return "", err
 	}
-	u.Password = string(hp)
+	return string(hp), nil
+}
 
-	service.UserRepo.Create(ctx, u)
+func (service *UserService) generateTokenForExistingUser(username string) (*dto.TokenDetail, error) {
+	user, err := service.UserRepo.GetBy("username", username)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil
+	tokenDto := &tokenDto{
+		UserId:    user.Id,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Username:  user.Username,
+		Email:     user.Email,
+		Roles:     extractUserRoles(user.UserRoles),
+	}
+
+	token, err := service.TokenService.GenerateToken(tokenDto)
+	if err != nil {
+		return nil, err
+	}
+
+	return token, nil
+}
+
+func extractUserRoles(userRoles *[]models.UserRole) []string {
+	if userRoles == nil || len(*userRoles) == 0 {
+		return nil
+	}
+
+	roles := make([]string, 0, len(*userRoles))
+	for _, userRole := range *userRoles {
+		roles = append(roles, userRole.Role.Name)
+	}
+	return roles
 }

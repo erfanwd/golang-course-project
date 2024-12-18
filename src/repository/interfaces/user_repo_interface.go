@@ -7,7 +7,8 @@ import (
 )
 
 type UserRepositoryInterface interface {
-	ExistsBy(attrName, attrValue string) (bool, error)
+	ExistsBy(attrName string, attrValue string) (bool, error)
 	GetDefaultRole() (int, error)
-	Create(ctx context.Context, user *models.User) error
+	CreateUser(ctx context.Context, user *models.User) error
+	GetBy(attrName string, attrValue string) (*models.User, error)
 }
