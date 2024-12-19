@@ -49,3 +49,33 @@ func (handler *UsersHandler) SendOtp(c *gin.Context) {
 	// Call Sms Service
 	c.JSON(http.StatusCreated, helpers.GenerateBaseHttpResponse(nil, true, 0))
 }
+
+// LoginByUsername godoc
+// @Summery login user by username
+// @Description login user by username
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param Request body dto.LoginByUsernameRequest true "LoginByUsernameRequest"
+// @Success 201 {object} helpers.BaseHttpResponse "Success"
+// @Failure 400 {object} helpers.BaseHttpResponse "Failed"
+// @Failure 409 {object} helpers.BaseHttpResponse "Failed"
+// @Router /v1/users/login-by-username [post]
+func (handler *UsersHandler) LoginByUsername(ctx *gin.Context) {
+	request := &dto.LoginByUsernameRequest{}
+	if err := ctx.ShouldBindJSON(request); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest,
+			helpers.GenerateBaseHttpResponseWithValidationError(nil, false, -1, err))
+		return
+	}
+
+	td, err := handler.service.LoginByUsername(ctx, request) 
+	if err != nil {
+		ctx.AbortWithStatusJSON(helpers.TranslateErrorToStatusCode(err),
+			helpers.GenerateBaseHttpResponseWithError(nil, false, -1, err))
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, helpers.GenerateBaseHttpResponse(td, true, 0))
+
+}
