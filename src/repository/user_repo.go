@@ -43,7 +43,7 @@ func (r *UserRepo) GetBy(attrName string, attrValue string) (*models.User, error
 	var user models.User
 	if err := r.Database.Model(&models.User{}).
 		Where(attrName+"= ?", attrValue).
-		Preload("UserRole", func(tx *gorm.DB) *gorm.DB {
+		Preload("UserRoles", func(tx *gorm.DB) *gorm.DB {
 			return tx.Preload("Role")
 		}).Find(&user).Error; err != nil {
 		r.Logger.Error(logging.Postgres, logging.Select, err.Error(), nil)

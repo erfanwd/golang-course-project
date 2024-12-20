@@ -9,7 +9,7 @@ const (
 	ClaimsNotFound  string = "claims not found"
 
 	UsernameExists     string = "username exists"
-	UsernameNotExists  string = "username exists"
+	UsernameNotExists  string = "username not exists"
 	EmailExists        string = "email exists"
 	MobileNumberExists string = "mobile number exists"
 	IncorrectPassword  string = "password is incorrect"

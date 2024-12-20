@@ -76,7 +76,7 @@ func (service *UserService) LoginByUsername(ctx context.Context, req *dto.LoginB
 	if err != nil {
 		return nil, &service_errors.ServiceError{EndUserMessage: service_errors.UsernameNotExists}
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(u.Password),[]byte(user.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password),[]byte(req.Password))
 	if err != nil {
 		return nil, &service_errors.ServiceError{EndUserMessage: service_errors.IncorrectPassword}
 	}
