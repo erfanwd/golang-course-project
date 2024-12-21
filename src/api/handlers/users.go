@@ -79,3 +79,34 @@ func (handler *UsersHandler) LoginByUsername(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, helpers.GenerateBaseHttpResponse(td, true, 0))
 
 }
+
+
+// RegisterByUsername godoc
+// @Summery register user by username
+// @Description register user by username
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param Request body dto.RegisterUserByUsernameRequest true "RegisterUserByUsernameRequest"
+// @Success 201 {object} helpers.BaseHttpResponse "Success"
+// @Failure 400 {object} helpers.BaseHttpResponse "Failed"
+// @Failure 409 {object} helpers.BaseHttpResponse "Failed"
+// @Router /v1/users/register-by-username [post]
+func (handler *UsersHandler) RegisterByUsername(ctx *gin.Context) {
+	request := &dto.RegisterUserByUsernameRequest{}
+	if err := ctx.ShouldBindJSON(request); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest,
+			helpers.GenerateBaseHttpResponseWithValidationError(nil, false, -1, err))
+		return
+	}
+
+	err := handler.service.RegisterByUsername(ctx, request) 
+	if err != nil {
+		ctx.AbortWithStatusJSON(helpers.TranslateErrorToStatusCode(err),
+			helpers.GenerateBaseHttpResponseWithError(nil, false, -1, err))
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, helpers.GenerateBaseHttpResponse(nil, true, 0))
+
+}
