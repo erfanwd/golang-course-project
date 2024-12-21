@@ -110,3 +110,34 @@ func (handler *UsersHandler) RegisterByUsername(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, helpers.GenerateBaseHttpResponse(nil, true, 0))
 
 }
+
+
+// RegisterLoginByMobileNumber godoc
+// @Summery register login user by mobile number
+// @Description register login user mobile number
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param Request body dto.RegisterLoginByMobileRequest true "RegisterLoginByMobileRequest"
+// @Success 201 {object} helpers.BaseHttpResponse "Success"
+// @Failure 400 {object} helpers.BaseHttpResponse "Failed"
+// @Failure 409 {object} helpers.BaseHttpResponse "Failed"
+// @Router /v1/users/register-login-by-mobile [post]
+func (handler *UsersHandler) RegisterLoginByMobileNumber(ctx *gin.Context) {
+	request := &dto.RegisterLoginByMobileRequest{}
+	if err := ctx.ShouldBindJSON(request); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest,
+			helpers.GenerateBaseHttpResponseWithValidationError(nil, false, -1, err))
+		return
+	}
+
+	td, err := handler.service.RegisterLoginByMobileNumber(ctx, request) 
+	if err != nil {
+		ctx.AbortWithStatusJSON(helpers.TranslateErrorToStatusCode(err),
+			helpers.GenerateBaseHttpResponseWithError(nil, false, -1, err))
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, helpers.GenerateBaseHttpResponse(td, true, 0))
+
+}

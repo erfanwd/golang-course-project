@@ -20,6 +20,20 @@ definitions:
     - password
     - username
     type: object
+  dto.RegisterLoginByMobileRequest:
+    properties:
+      mobileNumber:
+        maxLength: 11
+        minLength: 11
+        type: string
+      otp:
+        maxLength: 6
+        minLength: 6
+        type: string
+    required:
+    - mobileNumber
+    - otp
+    type: object
   dto.RegisterUserByUsernameRequest:
     properties:
       email:
@@ -111,6 +125,35 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.RegisterUserByUsernameRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+        "400":
+          description: Failed
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+        "409":
+          description: Failed
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+      tags:
+      - Users
+  /v1/users/register-login-by-mobile:
+    post:
+      consumes:
+      - application/json
+      description: register login user mobile number
+      parameters:
+      - description: RegisterLoginByMobileRequest
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterLoginByMobileRequest'
       produces:
       - application/json
       responses:

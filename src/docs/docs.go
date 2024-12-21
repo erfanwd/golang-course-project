@@ -105,6 +105,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/users/register-login-by-mobile": {
+            "post": {
+                "description": "register login user mobile number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "description": "RegisterLoginByMobileRequest",
+                        "name": "Request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RegisterLoginByMobileRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.BaseHttpResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.BaseHttpResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Failed",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.BaseHttpResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/send-otp": {
             "post": {
                 "description": "send otp to user",
@@ -179,6 +224,25 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "minLength": 5
+                }
+            }
+        },
+        "dto.RegisterLoginByMobileRequest": {
+            "type": "object",
+            "required": [
+                "mobileNumber",
+                "otp"
+            ],
+            "properties": {
+                "mobileNumber": {
+                    "type": "string",
+                    "maxLength": 11,
+                    "minLength": 11
+                },
+                "otp": {
+                    "type": "string",
+                    "maxLength": 6,
+                    "minLength": 6
                 }
             }
         },

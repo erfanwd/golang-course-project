@@ -54,7 +54,7 @@ func (service *OtpService) ValidateOtp(mobileNumber string, otp string) error {
 
 	res, err := cache.Get[OtpDto](service.redisClient, key)
 	if err != nil {
-		return err
+		return &service_errors.ServiceError{EndUserMessage: service_errors.OtpIsNotValid}
 	} else if res.Used {
 		return &service_errors.ServiceError{EndUserMessage: service_errors.OtpUsed}
 	} else if !res.Used && res.Value != otp {
