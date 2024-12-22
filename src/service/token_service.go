@@ -5,6 +5,7 @@ import (
 
 	"github.com/erfanwd/golang-course-project/api/dto"
 	"github.com/erfanwd/golang-course-project/config"
+	"github.com/erfanwd/golang-course-project/constants"
 	"github.com/erfanwd/golang-course-project/pkg/logging"
 	"github.com/erfanwd/golang-course-project/pkg/service_errors"
 	"github.com/golang-jwt/jwt"
@@ -16,12 +17,13 @@ type TokenService struct {
 }
 
 type tokenDto struct {
-	UserId    int
-	FirstName string
-	LastName  string
-	Username  string
-	Email     string
-	Roles     []string
+	UserId       int
+	FirstName    string
+	LastName     string
+	Username     string
+	Email        string
+	MobileNumber string
+	Roles        []string
 }
 
 func NewTokenService(cfg *config.Config) *TokenService {
@@ -31,22 +33,21 @@ func NewTokenService(cfg *config.Config) *TokenService {
 	}
 }
 
-
 func (service *TokenService) GenerateToken(token *tokenDto) (*dto.TokenDetail, error) {
 	td := &dto.TokenDetail{}
-	td.AccessTokenExpireDuration = time.Now().Add(service.cfg.Jwt.AccessTokenExpireDuration*time.Second).Unix()
-	td.RefreshTokenExpireDuration = time.Now().Add(service.cfg.Jwt.RefreshTokenExpireDuration*time.Second).Unix()
+	td.AccessTokenExpireDuration = time.Now().Add(service.cfg.Jwt.AccessTokenExpireDuration * time.Second).Unix()
+	td.RefreshTokenExpireDuration = time.Now().Add(service.cfg.Jwt.RefreshTokenExpireDuration * time.Second).Unix()
 
 	atc := jwt.MapClaims{}
 
-	atc["user_id"] = token.UserId
-	atc["first_name"] = token.FirstName
-	atc["last_name"] = token.LastName
-	atc["username"] = token.Username
-	atc["email"] = token.Email
-	atc["roles"] = token.Roles
-	atc["exp"] = td.AccessTokenExpireDuration
-
+	atc[constants.UserIdKey] = token.UserId
+	atc[constants.FirstNameKey] = token.FirstName
+	atc[constants.LastNameKey] = token.LastName
+	atc[constants.UsernameKey] = token.Username
+	atc[constants.EmailKey] = token.Email
+	atc[constants.MobileNumberKey] = token.MobileNumber
+	atc[constants.RolesKey] = token.Roles
+	atc[constants.ExpireTimeKey] = td.AccessTokenExpireDuration
 
 	ac := jwt.NewWithClaims(jwt.SigningMethodHS256, atc)
 
@@ -62,7 +63,6 @@ func (service *TokenService) GenerateToken(token *tokenDto) (*dto.TokenDetail, e
 	rtc["user_id"] = token.UserId
 	rtc["exp"] = td.RefreshTokenExpireDuration
 
-
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtc)
 
 	td.RefreshToken, err = rt.SignedString([]byte(service.cfg.Jwt.RefreshSecret))
@@ -76,7 +76,7 @@ func (service *TokenService) GenerateToken(token *tokenDto) (*dto.TokenDetail, e
 }
 
 func (service *TokenService) VerifyToken(token string) (*jwt.Token, error) {
-	at, err := jwt.Parse(token, func (token *jwt.Token) (interface{}, error) {
+	at, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			return nil, &service_errors.ServiceError{EndUserMessage: service_errors.UnexpectedError}

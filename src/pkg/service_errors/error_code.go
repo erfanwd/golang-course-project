@@ -13,4 +13,10 @@ const (
 	EmailExists        string = "email exists"
 	MobileNumberExists string = "mobile number exists"
 	IncorrectPassword  string = "password is incorrect"
+
+	// Token
+	UnExpectedError = "Expected error"
+	TokenRequired   = "token required"
+	TokenExpired    = "token expired"
+	TokenInvalid    = "token invalid"
 )
