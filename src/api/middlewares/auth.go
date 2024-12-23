@@ -51,3 +51,11 @@ func Authentication(cfg *config.Config) gin.HandlerFunc {
 
 	}
 }
+
+func Authorization(cfg *config.Config) gin.HandlerFunc {
+	var tokenService = service.NewTokenService(cfg)
+
+	return func(ctx *gin.Context) {
+		return tokenService.GetClaims("test")
+	}
+}
