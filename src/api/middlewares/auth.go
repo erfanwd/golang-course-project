@@ -52,10 +52,33 @@ func Authentication(cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func Authorization(cfg *config.Config) gin.HandlerFunc {
-	var tokenService = service.NewTokenService(cfg)
-
+func Authorization(validRoles []string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		return tokenService.GetClaims("test")
+		if len(ctx.Keys) == 0 {
+			ctx.AbortWithStatusJSON(http.StatusForbidden,
+				helpers.GenerateBaseHttpResponse(nil, false, -1))
+			return
+		}
+		valRoles := ctx.Keys[constants.RolesKey]
+		if valRoles == nil {
+			ctx.AbortWithStatusJSON(http.StatusForbidden,
+				helpers.GenerateBaseHttpResponse(nil, false, -1))
+			return
+		}
+		val := valRoles.([]interface{})
+		finalItems := map[string]int{}
+		for _, role := range val {
+			finalItems[role.(string)] = 0
+		}
+
+		for _, item := range validRoles {
+			if _, ok := finalItems[item]; ok {
+				ctx.Next()
+				return
+			}
+		}
+
+		ctx.AbortWithStatusJSON(http.StatusForbidden,
+			helpers.GenerateBaseHttpResponse(nil, false, -1))
 	}
 }
