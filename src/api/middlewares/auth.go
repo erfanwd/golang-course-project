@@ -65,10 +65,10 @@ func Authorization(validRoles []string) gin.HandlerFunc {
 				helpers.GenerateBaseHttpResponse(nil, false, -1))
 			return
 		}
-		val := valRoles.([]interface{})
+		val := valRoles.([]string)
 		finalItems := map[string]int{}
 		for _, role := range val {
-			finalItems[role.(string)] = 0
+			finalItems[role] = 0
 		}
 
 		for _, item := range validRoles {
