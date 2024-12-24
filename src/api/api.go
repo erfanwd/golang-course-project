@@ -29,6 +29,7 @@ func InitialServer(cfg *config.Config) {
 
 	RegisterRoutes(r, cfg)
 	RegisterSwagger(r, cfg)
+	//
 
 	r.Run(fmt.Sprintf(":%d", cfg.Server.Port))
 }
