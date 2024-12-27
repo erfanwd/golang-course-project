@@ -7,8 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-
-
 type BaseRepo[T any] struct {
 	Database *gorm.DB
 }
@@ -26,8 +24,17 @@ func (r *BaseRepo[T]) FindByID(ctx context.Context, id uint) (*T, error) {
 	return &entity, nil
 }
 
-func (r *BaseRepo[T]) Create(ctx context.Context, entity *T) error {
-	return r.Database.WithContext(ctx).Create(entity).Error
+func (r *BaseRepo[T]) Create(ctx context.Context, entity *T) (T, error) {
+	err := r.WithTransaction(ctx, func(tx *gorm.DB) error {
+		if err := tx.Create(entity).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return *entity, err
+	}
+	return *entity, nil
 }
 
 func (r *BaseRepo[T]) Update(ctx context.Context, entity *T) error {
