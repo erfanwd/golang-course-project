@@ -19,14 +19,21 @@ type BaseModel struct {
 
 func (m *BaseModel) BeforeCreate(tx *gorm.DB) (err error) {
 	value := tx.Statement.Context.Value("UserId")
-	var UserId = &sql.NullInt64{Valid: false}
+	var userId = &sql.NullInt64{Valid: false}
 
 	if value != nil {
-		UserId = &sql.NullInt64{Int64: value.(int64), Valid: true}
+		switch v := value.(type) {
+		case int64:
+			userId = &sql.NullInt64{Int64: v, Valid: true}
+		case float64:
+			userId = &sql.NullInt64{Int64: int64(v), Valid: true}
+		case int:
+			userId = &sql.NullInt64{Int64: int64(v), Valid: true}
+		}
 	}
 
 	m.CreatedAt = time.Now().UTC()
-	m.CreatedBy = UserId
+	m.CreatedBy = userId
 	return
 }
 

@@ -23,7 +23,7 @@ func Authentication(cfg *config.Config) gin.HandlerFunc {
 		if auth == "" {
 			err = &service_errors.ServiceError{EndUserMessage: service_errors.TokenRequired}
 		} else {
-			claimMap, err = tokenService.GetClaims(token[1])
+			claimMap, err = tokenService.GetClaims(token[0])
 			if err != nil {
 				switch err.(*jwt.ValidationError).Errors {
 				case jwt.ValidationErrorExpired:

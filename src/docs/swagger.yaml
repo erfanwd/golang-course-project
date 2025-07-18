@@ -1,4 +1,10 @@
+basePath: /api
 definitions:
+  dto.CountryCreateOrUpdateRequest:
+    properties:
+      name:
+        type: string
+    type: object
   dto.GetOtpRequest:
     properties:
       mobileNumber:
@@ -81,9 +87,44 @@ definitions:
       value:
         type: string
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: golang web api
+  title: Golang Web API
+  version: "1.0"
 paths:
+  /v1/country/create:
+    post:
+      consumes:
+      - application/json
+      description: create a country in db
+      parameters:
+      - description: CountryCreateOrUpdateRequest
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CountryCreateOrUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Success
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+        "400":
+          description: Failed
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+        "409":
+          description: Failed
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+      security:
+      - BearerAuth: []
+      tags:
+      - Country
   /v1/users/login-by-username:
     post:
       consumes:
@@ -200,4 +241,11 @@ paths:
             $ref: '#/definitions/helpers.BaseHttpResponse'
       tags:
       - Users
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

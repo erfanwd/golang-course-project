@@ -14,14 +14,15 @@ import (
 	"github.com/go-playground/validator/v10"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"gorm.io/gorm"
 )
 
 var logger = logging.NewLogger(config.GetConfig())
 
-func InitialServer(cfg *config.Config) {
+func InitialServer(cfg *config.Config, db *gorm.DB) {
 	r := gin.New()
 
-	RegisterValidators()
+	RegisterValidators(db)
 
 	r.Use(middlewares.DefaultStructuredLogger(cfg))
 	r.Use(middlewares.Cors(cfg))
@@ -40,10 +41,13 @@ func RegisterRoutes(r *gin.Engine, cfg *config.Config) {
 	{
 		users := v1.Group("users")
 		routers.User(users, cfg)
+		country := v1.Group("country")
+		routers.Country(country, cfg)
 	}
 }
 
-func RegisterValidators() {
+func RegisterValidators(db *gorm.DB) {
+
 	val, ok := binding.Validator.Engine().(*validator.Validate)
 
 	if ok {
@@ -52,6 +56,10 @@ func RegisterValidators() {
 			logger.Error(logging.Validation, logging.StartUp, err.Error(), nil)
 		}
 		err = val.RegisterValidation("password", validations.PasswordValidator, true)
+		if err != nil {
+			logger.Error(logging.Validation, logging.StartUp, err.Error(), nil)
+		}
+		err = val.RegisterValidation("unique", validations.UniqueValidator(db))
 		if err != nil {
 			logger.Error(logging.Validation, logging.StartUp, err.Error(), nil)
 		}
