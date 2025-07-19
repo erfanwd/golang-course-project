@@ -3,7 +3,11 @@ definitions:
   dto.CountryCreateOrUpdateRequest:
     properties:
       name:
+        maxLength: 20
+        minLength: 3
         type: string
+    required:
+    - name
     type: object
   dto.GetOtpRequest:
     properties:
@@ -123,6 +127,37 @@ paths:
             $ref: '#/definitions/helpers.BaseHttpResponse'
       security:
       - BearerAuth: []
+      tags:
+      - Country
+  /v1/country/find/{countryId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a country from the database using its ID
+      parameters:
+      - description: Country ID
+        in: path
+        name: countryId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helpers.BaseHttpResponse'
+      security:
+      - BearerAuth: []
+      summary: Find a country by ID
       tags:
       - Country
   /v1/users/login-by-username:

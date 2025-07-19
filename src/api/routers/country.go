@@ -10,4 +10,5 @@ import (
 func Country(router *gin.RouterGroup, cfg *config.Config) {
 	h := handlers.NewCountryHandler(cfg)
 	router.POST("create", middlewares.Authentication(cfg), h.CreateCountry)
+	router.GET("find/:countryId", middlewares.Authentication(cfg), h.GetById)
 }

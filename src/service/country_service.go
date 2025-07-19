@@ -34,7 +34,7 @@ func (s *CountryService) CreateCountry(ctx context.Context, req *dto.CountryCrea
 	country, err := s.CountryRepo.Create(ctx, entity)
 
 	if err != nil {
-		s.Logger.Error(logging.Postgres, logging.Select, err.Error(), nil)
+		s.Logger.Error(logging.Postgres, logging.Insert, err.Error(), nil)
 		return nil, err
 	}
 	res := &dto.CountryResponse{
@@ -42,4 +42,17 @@ func (s *CountryService) CreateCountry(ctx context.Context, req *dto.CountryCrea
 		Name: country.Name,
 	}
 	return res, nil
+}
+
+func (s * CountryService) GetById(ctx context.Context, countryId int) (*dto.CountryResponse, error) {
+	country, err := s.CountryRepo.FindByID(ctx, uint(countryId))
+	if err != nil {
+		s.Logger.Error(logging.Postgres, logging.Select, err.Error(), nil)
+		return nil, err
+	}
+	response := &dto.CountryResponse{
+		Id: country.Id,
+		Name: country.Name,
+	}
+	return response, nil 
 }

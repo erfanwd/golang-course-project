@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/erfanwd/golang-course-project/api/dto"
 	"github.com/erfanwd/golang-course-project/api/helpers"
@@ -45,6 +46,36 @@ func (h *CountryHandler) CreateCountry (ctx *gin.Context) {
 	if err != nil {
 		ctx.AbortWithStatusJSON(helpers.TranslateErrorToStatusCode(err),
 			helpers.GenerateBaseHttpResponseWithError(nil, false, -1, err))
+		return
+	}
+	ctx.JSON(http.StatusCreated, helpers.GenerateBaseHttpResponse(response, true, 0))
+}
+
+
+// GetById godoc
+// @Summary Find a country by ID
+// @Description Retrieves a country from the database using its ID
+// @Tags Country
+// @Accept json
+// @Produce json
+// @Param countryId path int true "Country ID"
+// @Success 200 {object} helpers.BaseHttpResponse "Success"
+// @Failure 400 {object} helpers.BaseHttpResponse "Bad Request"
+// @Failure 404 {object} helpers.BaseHttpResponse "Not Found"
+// @Security BearerAuth
+// @Router /v1/country/find/{countryId} [get]
+func (h *CountryHandler) GetById(ctx *gin.Context) {
+	country := ctx.Param("countryId")
+	countryId, err := strconv.Atoi(country)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest,
+			helpers.GenerateBaseHttpResponseWithValidationError(nil, false, -1, err))
+		return
+	}
+	response, err := h.CountryService.GetById(ctx, countryId)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest,
+			helpers.GenerateBaseHttpResponseWithValidationError(nil, false, -1, err))
 		return
 	}
 	ctx.JSON(http.StatusCreated, helpers.GenerateBaseHttpResponse(response, true, 0))
